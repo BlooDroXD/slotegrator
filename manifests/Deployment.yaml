@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slotegrator
+  labels:
+    app: slotegrator-app
+spec:
+  replicas: 2
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: slotegrator-app
+  template:
+    metadata:
+      labels:
+        app: slotegrator-app
+    spec:
+      containers:
+        - name: slotegrator
+          image: docker.io/hall3lujah/slotegrator:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: 200m
+              memory: 1Gi
+          volumeMounts:
+            - name: data-volume
+              mountPath: /opt/app/data
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: slotegrator-data-pvc
